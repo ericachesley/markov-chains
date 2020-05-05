@@ -11,8 +11,7 @@ def open_and_read_file(file_path):
     """
 
     # your code goes here
-
-    return "Contents of your file as one long string"
+    return open(file_path).read().split()
 
 
 def make_chains(text_string):
@@ -43,6 +42,11 @@ def make_chains(text_string):
     chains = {}
 
     # your code goes here
+    for i in range(len(text_string)-2):
+        bigram = (text_string[i], text_string[i+1])
+        followers = chains.get(bigram, [])
+        followers.append(text_string[i+2])
+        chains[bigram] = followers
 
     return chains
 
@@ -51,6 +55,7 @@ def make_text(chains):
     """Return text from chains."""
 
     words = []
+
 
     # your code goes here
 
@@ -61,9 +66,11 @@ input_path = "green-eggs.txt"
 
 # Open the file and turn it into one long string
 input_text = open_and_read_file(input_path)
+#print(input_text)
 
 # Get a Markov chain
 chains = make_chains(input_text)
+#print(chains)
 
 # Produce random text
 random_text = make_text(chains)

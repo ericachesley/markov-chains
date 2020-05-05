@@ -54,10 +54,15 @@ def make_chains(text_string):
 def make_text(chains):
     """Return text from chains."""
 
-    words = []
-
-
     # your code goes here
+    bigram = choice(list(chains.keys()))
+    words = [word for word in bigram]
+
+    while bigram in chains:
+        next_word = choice(chains[bigram])
+        words.append(next_word)
+        bigram = (bigram[1], next_word)
+    
 
     return " ".join(words)
 

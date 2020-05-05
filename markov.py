@@ -71,11 +71,9 @@ input_path = "green-eggs.txt"
 
 # Open the file and turn it into one long string
 input_text = open_and_read_file(input_path)
-#print(input_text)
 
 # Get a Markov chain
 chains = make_chains(input_text)
-#print(chains)
 
 # Produce random text
 random_text = make_text(chains)

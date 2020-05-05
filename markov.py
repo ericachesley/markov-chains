@@ -42,14 +42,28 @@ def make_chains(text_string, n):
 
     chains = {}
 
+    for i in range(n):
+        if text_string[i][0].isupper():
+            starters = chains.get('start', [])
+            starters.append(text_string[i:i+n])
+            chains['starters'] = starters
+
     # your code goes here
     for i in range(len(text_string)-n):
-        
-        n_gram = tuple([text_string[i+j] for j in range(n)])
+
+        n_gram = tuple(text_string[i:i+n])
         #bigram = (text_string[i], text_string[i+1])
         followers = chains.get(n_gram, [])
         followers.append(text_string[i+n])
         chains[n_gram] = followers
+
+        if text_string[i+n][0].isupper():
+            starters = chains.get('start', [])
+            starters.append(text_string[i+n:i+(2*n)])
+            chains['start'] = starters
+
+        #if text_string[i+n][-1] in {'.', '?', '!'}:
+
 
     return chains
 
@@ -58,7 +72,7 @@ def make_text(chains):
     """Return text from chains."""
 
     # your code goes here
-    n_gram = choice(list(chains.keys()))
+    n_gram = tuple(choice(chains['start']))
     words = [word for word in n_gram]
 
     while n_gram in chains:

@@ -12,7 +12,7 @@ def open_and_read_file(file_path):
     """
 
     # your code goes here
-    return open(file_path).read().split()
+    return open(file_path).read()
 
 
 def make_chains(text_string, n):
@@ -39,64 +39,90 @@ def make_chains(text_string, n):
         >>> chains[('there','juanita')]
         [None]
     """
+    text_list = text_string.split()
 
     chains = {}
 
     for i in range(n):
-        if text_string[i][0].isupper():
-            starters = chains.get('start', [])
-            starters.append(text_string[i:i+n])
-            chains['starters'] = starters
+        if text_list[i][0].isupper():
+            starters = chains.get('START', [])
+            starters.append(text_list[i:i+n])
+            chains['START'] = starters
 
     # your code goes here
-    for i in range(len(text_string)-n):
+    for i in range(len(text_list)-n):
+        n_gram = tuple(text_list[i:i+n])
 
-        n_gram = tuple(text_string[i:i+n])
-        #bigram = (text_string[i], text_string[i+1])
+        #bigram = (text_list[i], text_list[i+1])
+
         followers = chains.get(n_gram, [])
-        followers.append(text_string[i+n])
+        followers.append(text_list[i+n])
+
+        if n_gram[-1][-1] in {'.', '?', '!'}:
+            followers.append('EOF')
+
         chains[n_gram] = followers
 
-        if text_string[i+n][0].isupper():
-            starters = chains.get('start', [])
-            starters.append(text_string[i+n:i+(2*n)])
-            chains['start'] = starters
-
-        #if text_string[i+n][-1] in {'.', '?', '!'}:
-
+        if text_list[i+n][0].isupper():
+            starters = chains.get('START', [])
+            starters.append(text_list[i+n:i+(2*n)])
+            chains['START'] = starters
 
     return chains
+
+def combine_dicts(dict1, dict2):
+    new_dict = {}
+
+    for key in dict1.keys():
+        values = dict1[key]
+        more_values = dict2.get(key, [])
+        values.extend(more_values)
+
+        new_dict[key] = values
+
+    for key in dict2.keys():
+        if key not in dict1:
+            new_dict[key] = dict2[key]
+
+    return new_dict    
 
 
 def make_text(chains):
     """Return text from chains."""
 
     # your code goes here
-    n_gram = tuple(choice(chains['start']))
+    n_gram = tuple(choice(chains['START']))
     words = [word for word in n_gram]
 
     while n_gram in chains:
 
         next_word = choice(chains[n_gram])
+        if next_word == 'EOF':
+            break
         words.append(next_word)
 
         n_gram = list(n_gram)[1:]
         n_gram.append(next_word)
         n_gram = tuple(n_gram)
     
-
     return " ".join(words)
 
 
-input_path = sys.argv[1]
+input_files = sys.argv[2:]
 
-# Open the file and turn it into one long string
-input_text = open_and_read_file(input_path)
+combined_chains = {}
 
-# Get a Markov chain
-chains = make_chains(input_text, int(sys.argv[2]))
+for file in input_files:
+    # Open the file and turn it into one long string
+    input_text = open_and_read_file(file)
+    # Get a Markov chain
+    new_chains = make_chains(input_text, int(sys.argv[1]))
+    combined_chains = combine_dicts(combined_chains, new_chains)
+
 
 # Produce random text
-random_text = make_text(chains)
+random_text = make_text(combined_chains)
 
 print(random_text)
+
+
